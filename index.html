@@ -1,319 +1,191 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Breakeven</title>
   <style>
-    :root{
-      --bg: #0b0d12;
-      --card: #121621;
-      --muted: #9aa4b2;
-      --text: #eef2ff;
-      --stroke: rgba(255,255,255,.10);
-      --field: rgba(255,255,255,.06);
-      --good: rgba(56, 189, 248, .18);
-    }
-
-    *{ box-sizing: border-box; }
-    html, body { height: 100%; }
-    body{
-      margin:0;
-      font-family: -apple-system, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      background: radial-gradient(1200px 700px at 20% 0%, rgba(56,189,248,.14), transparent 50%),
-                  radial-gradient(900px 600px at 100% 30%, rgba(168,85,247,.12), transparent 55%),
-                  var(--bg);
-      color: var(--text);
-      -webkit-font-smoothing: antialiased;
-      overflow: hidden; /* helps keep no-scroll */
-    }
-
-    .wrap{
-      height: 100%;
-      padding: calc(12px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-width: 520px;
-      margin: 0 auto;
-    }
-
-    header{
-      display:flex;
-      align-items: baseline;
-      justify-content: space-between;
-      padding: 0 2px;
-    }
-    h1{
-      margin: 0;
-      font-size: 18px;
-      letter-spacing: .2px;
-    }
-    .sub{
-      margin: 0;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.05), transparent 45%), var(--card);
-      border: 1px solid var(--stroke);
-      border-radius: 16px;
-      padding: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.35);
-      flex: 1;
-      min-height: 0;
-      display:flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .field{
-      background: var(--field);
-      border: 1px solid var(--stroke);
-      border-radius: 12px;
-      padding: 8px 10px;
-      display:flex;
-      flex-direction: column;
-      gap: 6px;
-      min-width: 0;
-    }
-
-    .labelRow{
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 8px;
-      white-space: nowrap;
-    }
-
-    label{
-      font-size: 11px;
-      color: var(--muted);
-      letter-spacing: .2px;
-    }
-    .unit{
-      font-size: 11px;
-      color: var(--muted);
-      opacity: .9;
-    }
-
-    input{
-      width: 100%;
-      border: 0;
-      outline: none;
-      background: transparent;
-      color: var(--text);
-      font-size: 15px;
-      line-height: 18px;
-      padding: 0;
-      min-width: 0;
-    }
-
-    input[type="date"]{
-      font-size: 14px;
-    }
-
-    .row{
-      display:flex;
-      gap:10px;
-      align-items: stretch;
-    }
-
-    .btn{
-      flex: 1;
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: .2px;
-      cursor: pointer;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .btn:active{ transform: translateY(1px); }
-
-    details{
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,.03);
-      border-radius: 14px;
-      padding: 8px 10px;
-    }
-    summary{
-      list-style: none;
-      cursor: pointer;
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      font-size: 13px;
-      color: var(--text);
-      user-select: none;
-    }
-    summary::-webkit-details-marker{ display:none; }
-    .chev{ color: var(--muted); font-size: 12px; }
-
-    .resultsBar{
-      background: linear-gradient(180deg, rgba(56,189,248,.10), transparent 60%), var(--card);
-      border: 1px solid var(--stroke);
-      border-radius: 16px;
-      padding: 10px 12px;
-      display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap: 10px;
-    }
-    .rTitle{
-      font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-    .rVal{
-      font-size: 18px;
-      font-weight: 800;
-      letter-spacing: .2px;
-    }
-    .rSmall{
-      font-size: 13px;
-      font-weight: 700;
-    }
-    .pill{
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,.05);
-      border-radius: 999px;
-      padding: 6px 10px;
-      display:flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: center;
-    }
-
-    /* If screen is extremely short (older iPhones landscape), tighten spacing */
-    @media (max-height: 700px){
-      .wrap{ gap: 8px; padding: 10px; }
-      .card{ padding: 10px; gap: 8px; }
-      .grid{ gap: 8px; }
-      .field{ padding: 7px 9px; }
-      .resultsBar{ padding: 9px 10px; }
-      .rVal{ font-size: 17px; }
-    }
+    body{font-family:-apple-system,system-ui;margin:0;padding:14px;background:#f6f7f9;color:#111}
+    h1{font-size:18px;margin:0 0 10px}
+    .card{background:#fff;border-radius:16px;padding:14px;box-shadow:0 2px 10px rgba(0,0,0,.06);margin-bottom:12px}
+    label{font-size:12px;color:#444}
+    input{width:100%;box-sizing:border-box;padding:10px;border:1px solid #d6d9de;border-radius:12px;font-size:16px;background:#fff}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .kpi{border-radius:16px;padding:12px;color:#fff;background:#0b1220}
+    .kpi .l{font-size:12px;opacity:.75}
+    .kpi .v{font-size:24px;font-weight:800;margin-top:4px}
+    .kpi.profit{background:#0b2a16}
+    .kpi.loss{background:#2a0b0b}
+    .full{grid-column:1/-1}
+    .sub{font-size:12px;opacity:.85;margin-top:6px;line-height:1.35}
   </style>
 </head>
-
 <body>
-  <div class="wrap">
-    <header>
-      <h1>Breakeven</h1>
-      <p class="sub">No-scroll iPhone layout</p>
-    </header>
+  <h1>Feeder-to-Finish Breakeven</h1>
+  <h1>Breakeven Calculator</h1>
 
-    <div class="card">
-      <!-- Core inputs (2-column grid) -->
-      <div class="grid">
-        <div class="field">
-          <div class="labelRow"><label for="inWeight">In weight</label><span class="unit">lb</span></div>
-          <input id="inWeight" inputmode="decimal" placeholder="ex: 850" />
-        </div>
-        <div class="field">
-          <div class="labelRow"><label for="outWeight">Out weight</label><span class="unit">lb</span></div>
-          <input id="outWeight" inputmode="decimal" placeholder="ex: 1450" />
-        </div>
-
-        <div class="field">
-          <div class="labelRow"><label for="adg">Avg daily gain</label><span class="unit">lb/day</span></div>
-          <input id="adg" inputmode="decimal" placeholder="ex: 3.3" />
-        </div>
-        <div class="field">
-          <div class="labelRow"><label for="cog">Cost of gain</label><span class="unit">$/lb</span></div>
-          <input id="cog" inputmode="decimal" placeholder="ex: 1.05" />
-        </div>
-
-        <div class="field">
-          <div class="labelRow"><label for="inDate">In date</label><span class="unit"></span></div>
-          <input id="inDate" type="date" />
-        </div>
-        <div class="field">
-          <div class="labelRow"><label for="feederCost">Feeder cost</label><span class="unit">$/cwt</span></div>
-          <input id="feederCost" inputmode="decimal" placeholder="ex: 240" />
-        </div>
+  <div class="card">
+    <div class="grid">
+      <div class="kpi full" id="beBox">
+        <div class="l">Breakeven live price</div>
+        <div class="v" id="be">— $/cwt</div>
+        <div class="sub" id="mini">—</div>
       </div>
-
-      <!-- Advanced (collapsed by default) -->
-      <details>
-        <summary>
-          Advanced
-          <span class="chev">tap to expand</span>
-        </summary>
-
-        <div style="height:10px"></div>
-
-        <div class="grid">
-          <div class="field">
-            <div class="labelRow"><label for="interest">Interest</label><span class="unit">%</span></div>
-            <input id="interest" inputmode="decimal" placeholder="ex: 8.0" />
-          </div>
-          <div class="field">
-            <div class="labelRow"><label for="deathLoss">Death loss</label><span class="unit">%</span></div>
-            <input id="deathLoss" inputmode="decimal" placeholder="ex: 1.5" />
-          </div>
-
-          <div class="field" style="grid-column: 1 / -1;">
-            <div class="labelRow"><label for="gridReturn">Projected grid return</label><span class="unit">$/hd (optional)</span></div>
-            <input id="gridReturn" inputmode="decimal" placeholder="ex: 35" />
-          </div>
-        </div>
-      </details>
-
-      <div class="row">
-        <button class="btn" id="calcBtn">Calculate</button>
-        <button class="btn" id="resetBtn" type="button">Reset</button>
-      </div>
-    </div>
-
-    <!-- Sticky-feeling results bar (always visible, no scroll) -->
-    <div class="resultsBar">
-      <div>
-        <div class="rTitle">Breakeven live price</div>
-        <div class="rVal" id="beLive">$—</div>
-      </div>
-      <div class="pill">
-        <div>
-          <div class="rTitle">Out date</div>
-          <div class="rSmall" id="outDate">—</div>
-        </div>
+      <div class="kpi full" id="odBox">
+        <div class="l">Out date</div>
+        <div class="v" id="outDate">—</div>
+        <div class="sub" id="dofLine">—</div>
       </div>
     </div>
   </div>
 
-  <script>
-    // Hook these into your existing calculation logic.
-    // This skeleton just demonstrates wiring + keeping the UI clean.
+  <div class="card">
+    <div class="grid">
+      <div>
+        <label>In weight (lb)</label>
+        <input id="inW" type="number" inputmode="decimal" step="1" value="750">
+      </div>
+      <div>
+        <label>Out weight (lb)</label>
+        <input id="outW" type="number" inputmode="decimal" step="1" value="1450">
+      </div>
 
-    const $ = (id) => document.getElementById(id);
+      <div>
+        <label>Average daily gain (lb/day)</label>
+        <input id="adg" type="number" inputmode="decimal" step="0.01" value="3.5">
+      </div>
+      <div>
+        <label>Cost of gain ($/lb gain)</label>
+        <input id="cog" type="number" inputmode="decimal" step="0.01" value="1.10">
+      </div>
 
-    function resetAll(){
-      ["inWeight","outWeight","adg","cog","inDate","feederCost","interest","deathLoss","gridReturn"]
-        .forEach(id => { const el = $(id); if(el) el.value = ""; });
-      $("beLive").textContent = "$—";
-      $("outDate").textContent = "—";
-    }
+      <div>
+        <label>Feeder cost ($/cwt)</label>
+        <input id="feeder" type="number" inputmode="decimal" step="0.01" value="250.00">
+      </div>
+      <div>
+        <label>Interest (% annual)</label>
+        <input id="intr" type="number" inputmode="decimal" step="0.01" value="8.0">
+      </div>
 
-    $("resetBtn").addEventListener("click", resetAll);
+      <div>
+        <label>Death loss (%)</label>
+        <input id="dl" type="number" inputmode="decimal" step="0.01" value="1.5">
+      </div>
+      <div>
+        <label>In date</label>
+        <input id="inDate" type="date">
+      </div>
 
-    $("calcBtn").addEventListener("click", () => {
-      // Replace this with your real math:
-      // const be = ...
-      // const outDate = ...
-      $("beLive").textContent = "$" + "—";
-      $("outDate").textContent = "—";
-    });
-  </script>
+      <div class="full">
+        <label>Projected grid return ($/head) (optional; + helps, − hurts)</label>
+        <input id="grid" type="number" inputmode="decimal" step="1" value="0">
+      </div>
+    </div>
+    <div class="sub" style="color:#555;margin-top:10px">
+      Interest is charged on <b>purchase + finishing costs</b> for DOF (simple interest). Death loss adjusts cost per marketed head.
+    </div>
+  </div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+
+  function todayISO() {
+    const d = new Date();
+    const z = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    return z.toISOString().slice(0,10);
+  }
+  if (!$("inDate").value) $("inDate").value = todayISO();
+
+  function toNum(v){ const n = Number(v); return Number.isFinite(n) ? n : NaN; }
+  function fmt2(x){ return Number.isFinite(x) ? x.toFixed(2) : "—"; }
+  function fmt0(x){ return Number.isFinite(x) ? Math.round(x).toString() : "—"; }
+
+  function addDays(dateStr, days){
+    if (!dateStr || !Number.isFinite(days)) return null;
+    const d = new Date(dateStr + "T00:00:00");
+    d.setDate(d.getDate() + Math.round(days));
+    return d;
+  }
+  function fmtDate(d){
+    if (!d) return "—";
+    return d.toLocaleDateString(undefined, {year:"numeric", month:"short", day:"numeric"});
+  }
+
+  function calc(){
+    const inW = toNum($("inW").value);
+    const outW = toNum($("outW").value);
+    const adg = toNum($("adg").value);
+    const cog = toNum($("cog").value);
+    const feeder = toNum($("feeder").value);
+    const intrPct = toNum($("intr").value);
+    const dlPct = toNum($("dl").value);
+    const inDate = $("inDate").value;
+    const grid = toNum($("grid").value);
+
+    const gain = outW - inW;
+    const dof = (adg > 0) ? (gain / adg) : NaN;
+    const outD = addDays(inDate, dof);
+
+    // Costs
+    const purchase = feeder * (inW/100.0);
+    const finish = cog * gain;
+    const r = intrPct/100.0;
+    const interest = (purchase + finish) * r * (dof/365.0);
+
+    const totalPlaced = purchase + finish + interest;
+    const marketedFactor = 1.0 - (dlPct/100.0);
+    const costMarketed = totalPlaced / marketedFactor;
+
+    const required = costMarketed - (Number.isFinite(grid) ? grid : 0);
+
+    const breakeven = required / (outW/100.0);
+
+    // UI
+    $("be").textContent = Number.isFinite(breakeven) ? `${fmt2(breakeven)} $/cwt` : "— $/cwt";
+    $("outDate").textContent = fmtDate(outD);
+    $("dofLine").textContent = Number.isFinite(dof) ? `Days on feed: ${fmt0(dof)}  •  Gain: ${fmt0(gain)} lb` : "—";
+
+    $("mini").textContent =
+      Number.isFinite(purchase) && Number.isFinite(finish)
+        ? `Purchase: $${fmt0(purchase)}  •  Finish: $${fmt0(finish)}  •  Interest: $${fmt0(interest)}  •  DL adj: ${(marketedFactor*100).toFixed(2)}% marketed`
+        : "—";
+
+    // Color box: green if grid return makes it easier, red if not (simple cue vs zero)
+    const beBox = $("beBox");
+    beBox.classList.remove("profit","loss");
+    if (Number.isFinite(grid) && grid !== 0) beBox.classList.add(grid > 0 ? "profit" : "loss");
+
+    // persist
+    const state = {inW,outW,adg,cog,feeder,intrPct,dlPct,inDate,grid};
+    localStorage.setItem("be_v1", JSON.stringify(state));
+  }
+
+  function load(){
+    try {
+      const raw = localStorage.getItem("be_v1");
+      if (!raw) return;
+      const s = JSON.parse(raw);
+      if (s.inW!=null) $("inW").value = s.inW;
+      if (s.outW!=null) $("outW").value = s.outW;
+      if (s.adg!=null) $("adg").value = s.adg;
+      if (s.cog!=null) $("cog").value = s.cog;
+      if (s.feeder!=null) $("feeder").value = s.feeder;
+      if (s.intrPct!=null) $("intr").value = s.intrPct;
+      if (s.dlPct!=null) $("dl").value = s.dlPct;
+      if (s.inDate) $("inDate").value = s.inDate;
+      if (s.grid!=null) $("grid").value = s.grid;
+    } catch {}
+  }
+
+  load();
+  calc();
+  document.querySelectorAll("input").forEach(el => {
+    el.addEventListener("input", calc);
+    el.addEventListener("change", calc);
+  });
+})();
+</script>
 </body>
 </html>
