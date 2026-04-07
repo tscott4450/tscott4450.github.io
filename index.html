@@ -131,7 +131,9 @@
     const purchase = feeder * (inW/100.0);
     const finish = cog * gain;
     const r = intrPct/100.0;
-    const interest = (purchase + finish) * r * (dof/365.0);
+    const interest_purchase = purchase * r * (dof/365.0);
+const interest_finish = (finish / 2) * r * (dof/365.0);
+const interest = interest_purchase + interest_finish;
 
     const totalPlaced = purchase + finish + interest;
     const marketedFactor = 1.0 - (dlPct/100.0);
