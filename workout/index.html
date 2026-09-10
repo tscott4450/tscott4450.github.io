@@ -262,7 +262,7 @@ Each week has its own workout log.
 <main>
 
 <div class="tip">
-<strong>Progression:</strong> Hit the top of the rep range on all prescribed sets at roughly 0–1 RIR, then increase the weight next time.
+<strong>Progression:</strong> Hit the top of the rep range on all prescribed sets, then increase the weight next time.
 </div>
 
 <div id="exerciseList"></div>
@@ -469,15 +469,9 @@ function renderExercises(){
 
     if(hasAllSets){
 
-      const repsHit=Array.from({length:setCount},(_,i)=>i+1).every(setNum=>
+      const achieved=Array.from({length:setCount},(_,i)=>i+1).every(setNum=>
         Number(data["r"+setNum])>=top
       );
-
-      const effortHit=Array.from({length:setCount},(_,i)=>i+1).every(setNum=>
-        rirNumber(data["rir"+setNum])<=1
-      );
-
-      const achieved=repsHit && effortHit;
 
       badge=
       '<span class="badge '+(achieved?"good":"hold")+'">'+
