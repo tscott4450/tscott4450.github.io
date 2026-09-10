@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f1115">
+
+<title>Hypertrophy Tracker</title>
+
+<style>
+:root{
+  --bg:#0f1115;
+  --card:#171a21;
+  --card2:#20242d;
+  --text:#f5f7fb;
+  --muted:#9da5b4;
+  --blue:#2f9df4;
+  --line:#343946;
+  --green:#39c77f;
+  --amber:#f0b44c;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+}
+
+header{
+  padding:18px 16px 12px;
+  border-bottom:1px solid var(--line);
+}
+
+h1{
+  margin:0 0 5px;
+  font-size:25px;
+}
+
+.sub{
+  color:var(--muted);
+  font-size:13px;
+}
+
+.week-tabs,.day-tabs{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:12px 16px 4px;
+  scrollbar-width:none;
+}
+
+.week-tabs::-webkit-scrollbar,
+.day-tabs::-webkit-scrollbar{
+  display:none;
+}
+
+.tab{
+  flex:none;
+  border:1px solid var(--line);
+  background:var(--card);
+  color:white;
+  padding:10px 13px;
+  border-radius:12px;
+  font-weight:700;
+  font-size:14px;
+}
+
+.tab.active{
+  background:var(--blue);
+  border-color:var(--blue);
+}
+
+.week-note{
+  padding:7px 16px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+main{
+  padding:8px 16px 110px;
+}
+
+.tip{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:15px;
+  padding:12px;
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:14px;
+}
+
+.exercise{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:14px;
+  margin:10px 0;
+}
+
+.ex-head{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.ex-name{
+  font-weight:800;
+  font-size:16px;
+}
+
+.scheme{
+  color:var(--blue);
+  font-weight:800;
+  font-size:13px;
+  white-space:nowrap;
+}
+
+.last{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:5px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin-top:12px;
+}
+
+label{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  margin-bottom:4px;
+}
+
+input{
+  width:100%;
+  border:1px solid var(--line);
+  background:var(--card2);
+  color:white;
+  padding:11px;
+  border-radius:10px;
+  font-size:16px;
+}
+
+.notes{
+  grid-column:1/-1;
+}
+
+.badge{
+  display:inline-block;
+  margin-top:10px;
+  padding:6px 9px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+}
+
+.good{
+  color:var(--green);
+  background:rgba(57,199,127,.15);
+}
+
+.hold{
+  color:var(--amber);
+  background:rgba(240,180,76,.15);
+}
+
+.footer{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  display:flex;
+  gap:10px;
+  padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+  background:rgba(15,17,21,.97);
+  border-top:1px solid var(--line);
+}
+
+.action{
+  flex:1;
+  border:0;
+  border-radius:13px;
+  padding:14px 10px;
+  font-size:15px;
+  font-weight:800;
+}
+
+.save{
+  background:var(--blue);
+  color:white;
+}
+
+.clear{
+  background:var(--card2);
+  color:white;
+  border:1px solid var(--line);
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>4-Day Hypertrophy Tracker</h1>
+<div class="sub">
+Lower / Upper / Lower / Upper • 0–1 RIR • Double Progression
+</div>
+</header>
+
+<div id="weekTabs" class="week-tabs"></div>
+<div id="dayTabs" class="day-tabs"></div>
+
+<div class="week-note">
+Each week has its own workout log. Your previous week's numbers appear under each exercise.
+</div>
+
+<main>
+
+<div class="tip">
+<strong>Progression:</strong> When you reach the top of the rep range on both working sets with good form, increase the weight next time.
+</div>
+
+<div id="exerciseList"></div>
+
+</main>
+
+<div class="footer">
+<button class="action clear" onclick="clearDay()">Clear Day</button>
+<button class="action save" onclick="saveWorkout(true)">Save Workout</button>
+</div>
+
+<script>
+
+const program = {
+
+"Day 1 – Lower A":[
+["Belt Squat","2 × 6–10"],
+["Lying Leg Curl","2 × 6–10"],
+["Barbell RDL","2 × 6–10"],
+["Leg Extension","2 × 8–12"],
+["Calf Raise","3 × 6–10"],
+["Decline Sit-Up (Freak Athlete)","2 × 8–15"]
+],
+
+"Day 2 – Upper A":[
+["DB Bench Press","2 × 6–10"],
+["Low Row","2 × 6–10"],
+["Incline DB Press","2 × 6–10"],
+["Lat Pulldown","2 × 6–10"],
+["Cable Lateral Raise","3 × 10–15"],
+["Triceps Pushdown","2 × 8–12"],
+["Incline DB Curl","2 × 8–12"]
+],
+
+"Day 3 – Lower B":[
+["Barbell Squat","2 × 5–8"],
+["Lying Leg Curl","2 × 6–10"],
+["Bulgarian Split Squat","2 × 6–10 / leg"],
+["Nordic Curl (Freak Athlete)","2 × 5–10"],
+["Leg Extension","2 × 8–12"],
+["Calf Raise","3 × 6–10"],
+["Cable Crunch","2 × 8–15"]
+],
+
+"Day 4 – Upper B":[
+["Incline DB Bench","2 × 6–10"],
+["Chest-Supported DB Row","2 × 6–10"],
+["1-Arm Lat Pulldown","2 × 8–12"],
+["Seated DB Shoulder Press","2 × 6–10"],
+["Cable Fly","2 × 8–15"],
+["Cable Lateral Raise","2 × 10–15"],
+["Cable Curl","2 × 8–12"],
+["Overhead Cable Triceps Ext.","2 × 8–12"]
+]
+
+};
+
+const weeks = Array.from({length:12},(_,i)=>"Week "+(i+1));
+
+let currentWeek=0;
+let currentDay=Object.keys(program)[0];
+
+function storageKey(week,day){
+return "hypertrophy_"+week+"_"+day;
+}
+
+function getSaved(week,day){
+
+try{
+return JSON.parse(localStorage.getItem(storageKey(week,day))) || {};
+}
+catch{
+return {};
+}
+
+}
+
+function renderWeeks(){
+
+const root=document.getElementById("weekTabs");
+root.innerHTML="";
+
+weeks.forEach((week,i)=>{
+
+const b=document.createElement("button");
+
+b.className="tab"+(i===currentWeek?" active":"");
+b.textContent=week;
+
+b.onclick=()=>{
+
+saveWorkout(false);
+
+currentWeek=i;
+
+renderWeeks();
+renderExercises();
+
+};
+
+root.appendChild(b);
+
+});
+
+}
+
+function renderDays(){
+
+const root=document.getElementById("dayTabs");
+
+root.innerHTML="";
+
+Object.keys(program).forEach(day=>{
+
+const b=document.createElement("button");
+
+b.className="tab"+(day===currentDay?" active":"");
+
+b.textContent=day;
+
+b.onclick=()=>{
+
+saveWorkout(false);
+
+currentDay=day;
+
+renderDays();
+renderExercises();
+
+};
+
+root.appendChild(b);
+
+});
+
+}
+
+function getTopRep(scheme){
+
+const match=scheme.match(/(\d+)\s*[–-]\s*(\d+)/);
+
+return match ? Number(match[2]) : null;
+
+}
+
+function getPrevious(name){
+
+if(currentWeek===0) return null;
+
+const previous=getSaved(currentWeek-1,currentDay);
+
+return previous[name] || null;
+
+}
+
+function renderExercises(){
+
+const root=document.getElementById("exerciseList");
+
+root.innerHTML="";
+
+const saved=getSaved(currentWeek,currentDay);
+
+program[currentDay].forEach(([name,scheme],index)=>{
+
+const data=saved[name] || {};
+
+const previous=getPrevious(name);
+
+let previousText="No previous-week data";
+
+if(previous){
+
+previousText=
+"Last week: "+
+(previous.weight || "—")+
+" × "+
+(previous.r1 || "—")+
+", "+
+(previous.r2 || "—")+
+" • RIR "+
+(previous.rir || "—");
+
+}
+
+let badge="";
+
+const top=getTopRep(scheme);
+
+if(data.r1 && data.r2 && top){
+
+const achieved=
+Number(data.r1)>=top &&
+Number(data.r2)>=top;
+
+badge=
+'<span class="badge '+(achieved?"good":"hold")+'">'+
+(achieved?"Increase weight next time":"Keep building reps")+
+'</span>';
+
+}
+
+const card=document.createElement("div");
+
+card.className="exercise";
+
+card.innerHTML=`
+
+<div class="ex-head">
+
+<div>
+<div class="ex-name">${index+1}. ${name}</div>
+<div class="last">${previousText}</div>
+</div>
+
+<div class="scheme">${scheme}</div>
+
+</div>
+
+<div class="grid">
+
+<div>
+<label>Weight</label>
+<input
+inputmode="decimal"
+data-name="${name}"
+data-field="weight"
+value="${data.weight || ""}">
+</div>
+
+<div>
+<label>Set 1 reps</label>
+<input
+inputmode="numeric"
+data-name="${name}"
+data-field="r1"
+value="${data.r1 || ""}">
+</div>
+
+<div>
+<label>Set 2 reps</label>
+<input
+inputmode="numeric"
+data-name="${name}"
+data-field="r2"
+value="${data.r2 || ""}">
+</div>
+
+<div>
+<label>RIR (S1 / S2)</label>
+<input
+data-name="${name}"
+data-field="rir"
+placeholder="1/0"
+value="${data.rir || ""}">
+</div>
+
+<div class="notes">
+
+<label>Notes</label>
+
+<input
+data-name="${name}"
+data-field="notes"
+placeholder="Optional"
+value="${data.notes || ""}">
+
+</div>
+
+</div>
+
+${badge}
+
+`;
+
+root.appendChild(card);
+
+});
+
+}
+
+function collectWorkout(){
+
+const data={};
+
+document.querySelectorAll("#exerciseList input").forEach(input=>{
+
+const name=input.dataset.name;
+const field=input.dataset.field;
+
+if(!data[name]) data[name]={};
+
+data[name][field]=input.value.trim();
+
+});
+
+return data;
+
+}
+
+function saveWorkout(showMessage){
+
+localStorage.setItem(
+storageKey(currentWeek,currentDay),
+JSON.stringify(collectWorkout())
+);
+
+if(showMessage){
+
+alert(
+weeks[currentWeek]+
+" • "+
+currentDay+
+" saved"
+);
+
+renderExercises();
+
+}
+
+}
+
+function clearDay(){
+
+if(
+confirm(
+"Clear "+
+weeks[currentWeek]+
+" • "+
+currentDay+
+"?"
+)
+){
+
+localStorage.removeItem(
+storageKey(currentWeek,currentDay)
+);
+
+renderExercises();
+
+}
+
+}
+
+renderWeeks();
+renderDays();
+renderExercises();
+
+</script>
+
+</body>
+</html>
